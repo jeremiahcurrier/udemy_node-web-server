@@ -1,15 +1,42 @@
 const express = require('express');
 const hbs = require('hbs');
+const fs = require('fs');
 
 var app = express();
 
 hbs.registerPartials(__dirname + '/views/partials');
 app.set('view engine', 'hbs');
+
+// logs some request data to the screen
+app.use((req, res, next) => {
+	var now = new Date().toString();
+	var log = `${now}: ${req.method} ${req.url}`;
+	console.log(log);
+	// // old fs
+	// fs.appendFile('server.log', log + '\n');
+	// new fs
+	fs.appendFile('server.log', log + '\n', (err) => {
+		if (err) {
+			console.log('Unable to append to server.log')
+		}
+	});
+	next();
+});
+
+// // check if we're in maintenance mode
+// app.use((req, res, next) => {
+// 	res.render('maintenance.hbs');
+// 	// next();
+// 	/* you can just leave next() commented
+// 	while you are doing maintenance */
+// });
+
+// server up a directory
 app.use(express.static(__dirname + '/public'));
 
 hbs.registerHelper('getCurrentYear', () => {
-	return new Date().getFullYear();
-	// return 'foo';
+	// return new Date().getFullYear();
+	return 'foo';
 });
 
 hbs.registerHelper('screamIt', (text) => {
