@@ -1,0 +1,755 @@
+GETTING SETUP
+
+1. Create repo on Github
+2. Clone locally
+3. Add README.md and .gitignore and LICENSE file
+4. npm init to create the package.json file
+5. install dependency
+ npm install request --save
+ (run with --save to store to package.json file)
+6. or if you are using someone else's app run: 
+	npm install
+7. CODE
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 41; 'Hello Express'
+//////////////////////////////////////////////////////////////////
+
+'bind a port to a host'
+
+'server.js'
+1. load in express (require)
+2. make a new express app set to a the return result of the express() function
+3. start setting up all of our HTTP route handlers
+i.e. if someone visits the website send them data or an html page
+i.e. app.get();
+
+
+
+
+'bind application to port on our machine'
+
+
+const express = require('express');
+
+var app = express();
+
+/*
+app.get(route, what-to-send-back-to-user-that-made-request);
+app.get('/', () => { // what arguments? 
+	// req = request coming in; headers; body; method
+	// res = can respond to http request anyway you like, set status codes etc
+	res.send() // respond to request sending data back to sender
+})
+*/
+app.get('/', (req, res) => {
+	res.send('Hello Express!');
+});
+// app will never start listening on its own
+// we need to call app.listen
+// bind application to port on our machine
+// common port for local dev === 3000
+app.listen(3000);
+// DONE
+
+
+
+OPEN UP YOUR WEB BROWSER:
+	'server.js'
+			const express = require('express');
+
+			var app = express();
+
+			app.get('/', (req, res) => {
+				res.send('Hello Express!');
+			});
+			app.listen(3000); // http://localhost:3000/
+
+
+
+
+
+
+
+
+'server.js'
+
+		const express = require('express');
+
+		var app = express();
+
+		/* http://localhost:3000
+		*/
+		app.get('/', (req, res) => {
+			// res.send('Hello Express!');
+
+			// RESPONSE HEADER
+			// Content-Type: text/html;
+			// res.send('<H1>Hello Express!</H1>');
+			
+			// RESPONSE HEADER
+			// Content-Type: application/json;
+			res.send({
+				name: 'Jeremiah',
+				likes: [
+					'Biking',
+					'Cities'
+				]
+			});
+		});
+
+		/* http://localhost:3000/about
+		*/
+		app.get('/about', (req, res) => {
+			res.send('About Page');
+		});
+
+		// /bad respond with res.send({error: 'etc'})
+		app.get('/bad', (req, res) => {
+			res.send({
+				errorMessage: `There was an error even though the response code is ${res.statusCode}`
+			});
+		});
+
+		app.listen(3000); // http://localhost:3000/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 42; 'Creating a Web Server'
+//////////////////////////////////////////////////////////////////
+Setup static web server without needing to provide routes for everything
+
+GOAL: Serve HTML page up in express app without having to manually configure it.
+HOW: Middleware. Middleware lets you config how your express application works
+	'Third party add-on' to get express to work a different way.
+
+
+
+
+'server.js'
+
+		const express = require('express');
+
+		var app = express();
+
+		/* app.use(); === in order to add middleware,
+		takes middleware function you wanna use
+		...takes absolute path to folder you want to serve up
+		app.use(express.static());
+		projects move around... use '__dirname' has path to project directory */
+		app.use(express.static(__dirname + '/public'));
+
+		/* http://localhost:3000
+		*/
+		app.get('/', (req, res) => {
+			// res.send('Hello Express!');
+
+			// RESPONSE HEADER
+			// Content-Type: text/html;
+			// res.send('<H1>Hello Express!</H1>');
+			
+			// RESPONSE HEADER
+			// Content-Type: application/json;
+			res.send({
+				name: 'Jeremiah',
+				likes: [
+					'Biking',
+					'Cities'
+				]
+			});
+		});
+
+		/* http://localhost:3000/about
+		*/
+		app.get('/about', (req, res) => {
+			res.send('About Page');
+		});
+
+		// /bad respond with res.send({error: 'etc'})
+		app.get('/bad', (req, res) => {
+			res.send({
+				errorMessage: `There was an error even though the response code is ${res.statusCode}`
+			});
+		});
+
+		// app.listen(3000); // http://localhost:3000/
+		// you can do something once the server is up...
+		app.listen(3000, () => {
+			console.log('Server is up on port 3000');
+		}); // http://localhost:3000/
+
+
+'./public/help.html'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<!-- charset === lets browser know how to render our characters -->
+				<!-- title === lets browser know what to render in new tab -->
+				<meta charset="utf-8"> 
+				<title>Help Page</title>
+			</head>
+			<body>
+			<!-- Displayed in the viewport of the browser -->
+			<h1>Help Page</h1>
+			<p>Some text here</p>
+			</body>
+		</html>
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 43; 'Rendering templates with data'
+//////////////////////////////////////////////////////////////////
+
+Ways to render HTML with express:
+1. inline to res.send() (must be a string)
+2. public directory with static html files
+3. TEMPLATING ENGINE (dynamic)
+
+handlebars.js view engine for express.js
+
+we're gonna install a module that is a wrapper for handlebars
+
+https://www.npmjs.com/package/hbs
+
+Q: How do we configure express to use the handlebars.js view engine?
+A: import it and add 1 statement to express config
+
+
+
+
+'views/about.hbs'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8"> 
+				<title>Some Website</title>
+			</head>
+			<body>
+			<!-- <h1>About Page</h1> -->
+			<h1>{{pageTitle}}</h1>
+			<p>Some text here</p>
+
+			<footer>
+				<p>Copyright {{currentYear}}</p>
+			</footer>
+			</body>
+		</html>
+
+'views/home.hbs'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8"> 
+				<title>Some Website</title>
+			</head>
+			<body>
+			<h1>{{pageTitle}}</h1>
+			<p>{{welcomeMessage}}</p>
+
+			<footer>
+				<p>Copyright {{currentYear}}</p>
+			</footer>
+			</body>
+		</html>
+
+
+'server.js'
+
+
+		const express = require('express');
+		const hbs = require('hbs');
+
+		var app = express();
+
+		app.set('view engine', 'hbs');
+		app.use(express.static(__dirname + '/public'));
+
+		app.get('/', (req, res) => {
+			res.render('home.hbs', {
+				pageTitle: 'Home page',
+				currentYear: new Date().getFullYear(),
+				welcomeMessage: 'Welcome home.'
+			});
+		});
+
+		app.get('/about', (req, res) => {
+			res.render('about.hbs', {
+				pageTitle: 'About page',
+				currentYear: new Date().getFullYear()
+			});
+		});
+
+		app.get('/bad', (req, res) => {
+			res.send({
+				errorMessage: `Error with response: ${res.statusCode}`
+			});
+		});
+
+		app.listen(3000, () => {
+			console.log('Server is up on port 3000');
+		});
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 44; 'Advanced templating'
+//////////////////////////////////////////////////////////////////
+
+1. Easier to render markup used in multiple places
+2. Easier to inject data into your dynamic web pages
+
+
+
+
+PARTIALS!
+
+Partial = function you can run inside of your handlebars template once it has been registered.
+
+WATCH change on files just js and hbs
+nodemon server.js -e js,hbs (extensions to watch vs single file)
+
+
+'home.hbs'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8"> 
+				<title>Some Website</title>
+			</head>
+			<body>
+				<!-- <h1>{{pageTitle}}</h1> -->
+				{{> header}}
+				
+				<p>{{welcomeMessage}}</p>
+
+				{{> footer}}
+			</body>
+		</html>
+
+
+
+'about.hbs'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8"> 
+				<title>Some Website</title>
+			</head>
+			<body>
+				<!-- <h1>{{pageTitle}}</h1> -->
+				{{> header}}
+			
+				<p>Some text here</p>
+
+				{{> footer}}
+			</body>
+		</html>
+
+
+'header.hbs'
+
+		<header>
+			<h1>{{pageTitle}}</h1>
+			<p><a href ='/'>Home</a></p>
+			<p><a href ='/about'>About</a></p>
+		</header>
+
+'footer.hbs'
+	<footer>
+		<p>Created by Jeremiah Currier - Copyright {{currentYear}}</p>
+	</footer>
+
+
+
+'server.js'
+
+		const express = require('express');
+		const hbs = require('hbs');
+
+		var app = express();
+
+		/* Add support for 'partials' to handlebars
+		ABOVE setting view enginer .registerPartials() specifies 
+		absolute directory to the partials folder*/
+		hbs.registerPartials(__dirname + '/views/partials');
+		app.set('view engine', 'hbs');
+		app.use(express.static(__dirname + '/public'));
+
+		app.get('/', (req, res) => {
+			res.render('home.hbs', {
+				pageTitle: 'Home page',
+				currentYear: new Date().getFullYear(),
+				welcomeMessage: 'Welcome home.'
+			});
+		});
+
+		app.get('/about', (req, res) => {
+			res.render('about.hbs', {
+				pageTitle: 'About page',
+				currentYear: new Date().getFullYear()
+			});
+		});
+
+		app.get('/bad', (req, res) => {
+			res.send({
+				errorMessage: `Error with response: ${res.statusCode}`
+			});
+		});
+
+		app.listen(3000, () => {
+			console.log('Server is up on port 3000');
+		});
+
+
+
++ the screamIt helper
+
+'home.hbs'
+
+		<!DOCTYPE html>
+		<html>
+			<head>
+				<meta charset="utf-8"> 
+				<title>Some Website</title>
+			</head>
+			<body>
+				<!-- <h1>{{pageTitle}}</h1> -->
+				{{> header}}
+				
+				<!-- <p>{{welcomeMessage}}</p> -->
+				<p>{{screamIt welcomeMessage}}</p>
+
+				{{> footer}}
+			</body>
+		</html>
+
+
+'server.js'
+
+		const express = require('express');
+		const hbs = require('hbs');
+
+		var app = express();
+
+		/* Add support for 'partials' to handlebars
+		ABOVE setting view enginer .registerPartials() specifies 
+		absolute directory to the partials folder*/
+		hbs.registerPartials(__dirname + '/views/partials');
+		app.set('view engine', 'hbs');
+		app.use(express.static(__dirname + '/public'));
+
+		/* .registerHelper() takes 2 arguments:
+		1. name of helper
+		2. function to run */
+		hbs.registerHelper('getCurrentYear', () => {
+			return new Date().getFullYear();
+			// return 'foo';
+		});
+
+		hbs.registerHelper('screamIt', (text) => {
+			return text.toUpperCase();
+		});
+
+		app.get('/', (req, res) => {
+			res.render('home.hbs', {
+				pageTitle: 'Home page',
+				// removed because using hbs.registerHelper()
+				// currentYear: new Date().getFullYear(),
+				welcomeMessage: 'Welcome home.'
+			});
+		});
+
+		app.get('/about', (req, res) => {
+			res.render('about.hbs', {
+				pageTitle: 'About page'
+				// removed because using hbs.registerHelper()
+				// currentYear: new Date().getFullYear()
+			});
+		});
+
+		app.get('/bad', (req, res) => {
+			res.send({
+				errorMessage: `Error with response: ${res.statusCode}`
+			});
+		});
+
+		app.listen(3000, () => {
+			console.log('Server is up on port 3000');
+		});
+
+
+
+
+
+
+
+
+// nodemon server.js -e js,hbs
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 44; 'Express middleware' (MW or mw)
+//////////////////////////////////////////////////////////////////
+
+LAST CLASS: handlebars partials which let us create reusable chunks of code like headers and footers. handlebars helpers which is a way to run JS code from inside handlebars templates
+
+PURPOSE:
+How we can customize REQUESTS, RESPONSES, and OUR EXPRESS SERVER
+
+app.use = how to register middleware
+app.use(middleware-function-we-wanna-use)
+
+we can use middleware to determine if someone is logged in / in other words if they should be able to access a specific route - you can use express middleware to ensure the right http header is sent in the request including an API token
+
+mw : to respond to a request i.e. response.send() or response.render()
+
+now lets register some middleware!
+
+app.use((req, res, next) => {
+	// foo
+});
+
+what is 'next'? this is used so that you can tell your middleware a function is done... this is useful bc you can have as much middleware as you like registered to a single express app
+
+
+server.js
+
+	// server up a directory
+	app.use(express.static(__dirname + '/public'));
+
+	// logs some request data to the screen
+	app.use((req, res, next) => {
+		// log something to the screen OR 
+		// db request to ensure use is authenticated OR
+		/* and 'next' to tell express when we're done
+		so if we do something asynchronous the middleware is not
+		gonna move on only when we call 'next' like this:
+			next();
+		... will the application continue to run
+		This means if your middleware doesn't call next()
+		then your handlers for each request will never fire
+		i.e. all your routes.
+		*/
+	});
+
+
+
+
+server.js
+
+	// logs some request data to the screen
+	app.use((req, res, next) => {
+		var now = new Date().toString();
+		var log = `${now}: ${req.method} ${req.url}`;
+		console.log(log);
+		// // old fs
+		// fs.appendFile('server.log', log + '\n');
+		// new fs
+		fs.appendFile('server.log', log + '\n', (err) => {
+			if (err) {
+				console.log('Unable to append to server.log')
+			}
+		});
+		next();
+	});
+
+
+
+
+more middleware = (1) check if API call is authenticated (2) making a DB call to ensure user is who they say they are (what about in memory)
+
+
+NEXT: deploying app to the web and version control
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 45; 'Adding Version Control (Git)'
+//////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 48; 'Deploying your apps'
+//////////////////////////////////////////////////////////////////
+
+Create account : Heroku
+Add Heroku CLI to local machine
+heroku login > any key open browser to auth > back to Terminal
+
+A. add local keys to Heroku
+	add SSH key flow (1) heroku keys:add > Yes (2) done (scan SSH directory and adds it up)
+	key uploaded to heroku!
+
+	see keys
+		heroku keys
+	remove keys
+		heroku keys:remove {email}
+
+B. TEST SSH CONNECTION
+	ssh -v git@heroku.com
+		communicates with Heroku servers
+			click 'yes'
+	look for "Authentication succeeded (publickey)."
+
+C. change port to Heroku port
+
+server.js
+
+	app.listen(3000, () => {
+		console.log('Server is up on port 3000');
+	});
+
+	// change to this including environment variable
+	...
+	const port = process.env.PORT || 3000; // if you have value for port else use 3000
+	...
+	app.listen(port, () => {
+		// console.log('Server is up on port 3000');
+		console.log(`Server is up on port ${port}`);
+	});
+
+HOW DO YOU SEE ENVIRONMENT VARIABLES ON YOUR LOCAL MACHINE
+
+WINDOWS (SET)
+LINUX/OSX(MAC) (env)
+	TERM_PROGRAM=Apple_Terminal
+	TERM=xterm-256color
+	SHELL=/bin/bash
+	TMPDIR=/var/folders/0t/0t06cq_d3jndxps4sbd6m88m0000gp/T/
+	Apple_PubSub_Socket_Render=/private/tmp/com.apple.launchd.J5s6QBOCzg/Render
+	TERM_PROGRAM_VERSION=404.1
+	OLDPWD=/Users/jeremiah/code/udemy
+	TERM_SESSION_ID=B6AF9146-7805-4872-9220-368A45A3B4DB
+	USER=jeremiah
+	SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.V5Wok1IaXF/Listeners
+	PATH=/Users/jeremiah/Library/Python/2.7/bin:/Library/Frameworks/Python.framework/Versions/3.7/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/munki
+	PWD=/Users/jeremiah/code/udemy/node-web-server
+	LANG=en_US.UTF-8
+	XPC_FLAGS=0x0
+	XPC_SERVICE_NAME=0
+	HOME=/Users/jeremiah
+	SHLVL=1
+	LOGNAME=jeremiah
+	_=/usr/bin/env
+
+
+NEXT we need to specify a script in 'package.json'
+
+(because HEROKU does not know the name of the js file to start your app so you need to input that into the specifically 'start' script in the scripts object in package.json - in this case booting up the server.js file)
+
+change this: ($ node server.js)
+
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+
+... to this: (npm start)
+
+"scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+
+
+
+push changes to github
+now you can run 'npm start' which runs the script in your scripts object in package.json
+
+at this point it is TIME TO CREATE THE HEROKU APP
+
+heroku create
+	1. real new application in the Heroku web app
+	2. add a new remote to your Git repository
+		origin = github git repository
+		heroku = heroku git repository
+
+now we have to push our app to Heroku (like github)
+	git push heroku
+
+'heroku open' will open your application in the web browser
+also
+
+'https://mighty-anchorage-68959.herokuapp.com/'
+
+if you have your own DOMAIN REGISTRATION COMPANY you can configre it's DNS to point to THIS NEW HEROKU APPLICATION this will let you use a custom URL for your heroku app
+	HOW DO I DO THIS?
+		Refer to the instructions / RTFM for your DOMAIN REGISTRAR
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////
+S: 5; P: 49; 'Adding a new feature and deploying'
+//////////////////////////////////////////////////////////////////
+
+Go through development lifecycle from IDEA to DEPLOYING
+create code locally, test locally, make commit, push to github, deploy to heroku to be live on the web
+
+
+git push
+(back up code and let others collaborate on it)
+(do not have to do 'git push origin' as 'origin' is the default remote in git)
+git push heroku
+(deploy to heroku - push git repository to heroku remote)
+
+
+github? host a git repository OR bitbucket
+heroku? could also use amazon OR digitalocean
+
+host git repository on bitbucket
+deploy app to heroku/amazon/digitalocean
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
